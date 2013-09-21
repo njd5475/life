@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,8 +34,10 @@ public class Life extends JPanel {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				mouseDown = true;
-				int col = ((e.getX() + 2) / grid.getTileWidth());
-				int row = ((e.getY() + 2) / grid.getTileHeight());
+				int col = ((e.getX() - grid.getTranslateX()) / grid
+						.getTileWidth());
+				int row = ((e.getY() - grid.getTranslateY()) / grid
+						.getTileHeight());
 				if (!grid.contains(col, row)) {
 					grid.add(col, row);
 				} else {
@@ -50,20 +54,42 @@ public class Life extends JPanel {
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				int col = ((e.getX() + 2) / grid.getTileWidth());
-				int row = ((e.getY() + 2) / grid.getTileHeight());
-				grid.add(col, row);
-			}			
+				int col = (int) ((e.getX() - grid.getTranslateX()) / (grid
+						.getScaleX() * grid.getTileWidth()));
+				int row = (int) ((e.getY() - grid.getTranslateY()) / (grid
+						.getScaleY() * grid.getTileHeight()));
+				if (!grid.contains(col, row)) {
+					grid.add(col, row);
+				} else {
+					grid.remove(col, row);
+				}
+			}
+		});
+
+		addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				double amount = e.getPreciseWheelRotation() * .05;
+				grid.changeScale(amount, amount);
+			}
 		});
 
 		addKeyListener(new KeyAdapter() {
+			
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					play = false;
+					grid.step();
+				}
+			}
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-					grid.togglePause();
-				} else if (e.getKeyCode() == KeyEvent.VK_UP) {
-					play = false;
-					grid.step();
+					play = !play;
+					// grid.togglePause();
 				} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 					play = true;
 				} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -71,19 +97,21 @@ public class Life extends JPanel {
 				} else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE
 						|| e.getKeyCode() == KeyEvent.VK_DELETE) {
 					play = false;
-					grid.pause();
 					grid.clear();
 				} else if (e.getKeyCode() == KeyEvent.VK_R) {
 					play = false;
-					grid.pause();
 					grid.clear();
 					Random r = new Random(System.currentTimeMillis());
-					int total = (int) (0.75 * r.nextInt((getWidth() / grid
+					int total = (int) (0.85 * r.nextInt((getWidth() / grid
 							.getTileWidth())
 							* (getHeight() / grid.getTileHeight())));
 					for (int i = 0; i < total; ++i) {
-						grid.add(r.nextInt(getWidth() / grid.getTileWidth()),
-								r.nextInt(getHeight() / grid.getTileHeight()));
+						grid.add(
+								r.nextInt(getWidth() / grid.getTileWidth())
+										- (getWidth() / 2 / grid.getTileWidth()),
+								r.nextInt(getHeight() / grid.getTileHeight())
+										- (getHeight() / 2 / grid
+												.getTileHeight()));
 					}
 				}
 			}
@@ -96,7 +124,7 @@ public class Life extends JPanel {
 				}
 				Life.this.repaint();
 			}
-		}, 0, 20);
+		}, 0, 10);
 	}
 
 	@Override
@@ -105,13 +133,15 @@ public class Life extends JPanel {
 		Graphics2D g = (Graphics2D) init.create();
 		g.setColor(Color.white);
 		g.clearRect(0, 0, getWidth(), getHeight());
-		grid.render(g, getWidth(), getHeight());
+		Graphics2D gCentered = (Graphics2D) g.create();
+		gCentered.translate(getWidth() / 2, getHeight() / 2);
+		grid.render(gCentered, getWidth(), getHeight());
+		gCentered.dispose();
 		g.setColor(Color.black);
 		g.drawString(
 				String.format(
-						"Click to create life, [DEL] or [BACKSP] to clear, up to step, right to play, [R] for random fill. status=%s",
-						(grid.isPaused() && !play) ? "Paused" : "Running"), 10,
-				getHeight() - 20);
+						"Click or drag to create/destroy life, [DEL] or [BACKSP] to clear, [UP] to step, [RIGHT] to play, [R] for random fill. status=%s",
+						(play) ? "Running" : "Paused"), 10, getHeight() - 20);
 		g.dispose();
 	}
 

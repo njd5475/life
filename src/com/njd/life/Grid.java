@@ -14,13 +14,19 @@ public class Grid {
 	private int					tileWidth	= 10;
 	private int					tileHeight	= 10;
 
+	private double				scaleX		= 1;
+	private double				scaleY		= 1;
+
+	private int	translateX;
+	private int	translateY;
+
 	public Grid() {
 	}
 
 	public void clear() {
 		grid = new HashSet<Location>();
 	}
-	
+
 	public void pause() {
 		paused = true;
 	}
@@ -37,11 +43,29 @@ public class Grid {
 		grid.remove(Location.valueOf(col, row));
 	}
 
-	public void render(Graphics2D g, int width, int height) {
+	public void changeScale(double dx, double dy) {
+		this.scaleX += dx;
+		this.scaleY += dy;
+	}
+	
+	public int getTranslateX() {
+		return translateX;
+	}
+	
+	public int getTranslateY() {
+		return translateY;
+	}
+
+	public void render(Graphics2D init, int width, int height) {
+		Graphics2D g = (Graphics2D) init.create();
+
+		g.translate(-translateX, -translateY);
+		g.scale(scaleX, scaleY);
 		g.setColor(Color.black);
 		for (Location l : grid) {
 			renderLocation(g, l);
 		}
+		g.dispose();
 	}
 
 	public void step() {
@@ -106,6 +130,20 @@ public class Grid {
 
 	public boolean contains(int col, int row) {
 		return grid.contains(Location.valueOf(col, row));
+	}
+
+	
+	public void translateTo(int dx, int dy) {
+		translateX += dx;
+		translateY += dy;
+	}
+
+	public double getScaleX() {
+		return scaleX;
+	}
+	
+	public double getScaleY() {
+		return scaleY;
 	}
 
 }
