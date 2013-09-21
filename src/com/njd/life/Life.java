@@ -9,6 +9,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,20 +20,40 @@ import javax.swing.SwingUtilities;
 
 public class Life extends JPanel {
 
-	private Timer	timer	= new Timer();
-	private Grid	grid	= new Grid();
-	private boolean	play	= false;
+	private Timer		timer	= new Timer();
+	private Grid		grid	= new Grid();
+	private boolean		play	= false;
+	protected boolean	mouseDown;
 
 	public Life() {
 		setPreferredSize(new Dimension(800, 600));
 
 		addMouseListener(new MouseAdapter() {
 			@Override
+			public void mousePressed(MouseEvent e) {
+				mouseDown = true;
+				int col = ((e.getX() + 2) / grid.getTileWidth());
+				int row = ((e.getY() + 2) / grid.getTileHeight());
+				if (!grid.contains(col, row)) {
+					grid.add(col, row);
+				} else {
+					grid.remove(col, row);
+				}
+			}
+
+			@Override
 			public void mouseReleased(MouseEvent e) {
+				mouseDown = false;
+			}
+		});
+
+		addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
 				int col = ((e.getX() + 2) / grid.getTileWidth());
 				int row = ((e.getY() + 2) / grid.getTileHeight());
 				grid.add(col, row);
-			}
+			}			
 		});
 
 		addKeyListener(new KeyAdapter() {

@@ -34,7 +34,7 @@ public class Grid {
 	}
 
 	public void remove(int col, int row) {
-		grid.add(Location.valueOf(col, row));
+		grid.remove(Location.valueOf(col, row));
 	}
 
 	public void render(Graphics2D g, int width, int height) {
@@ -102,6 +102,10 @@ public class Grid {
 
 	public int getTileHeight() {
 		return tileHeight;
+	}
+
+	public boolean contains(int col, int row) {
+		return grid.contains(Location.valueOf(col, row));
 	}
 
 }
