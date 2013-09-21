@@ -34,10 +34,8 @@ public class Life extends JPanel {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				mouseDown = true;
-				int col = ((e.getX() - grid.getTranslateX()) / grid
-						.getTileWidth());
-				int row = ((e.getY() - grid.getTranslateY()) / grid
-						.getTileHeight());
+				int col = (int) ((e.getX()-getWidth()/2)/grid.getScaleX()) / grid.getTileWidth();
+				int row = (int) ((e.getY()-getHeight()/2)/grid.getScaleY()) / grid.getTileHeight();
 				if (!grid.contains(col, row)) {
 					grid.add(col, row);
 				} else {
@@ -54,10 +52,8 @@ public class Life extends JPanel {
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				int col = (int) ((e.getX() - grid.getTranslateX()) / (grid
-						.getScaleX() * grid.getTileWidth()));
-				int row = (int) ((e.getY() - grid.getTranslateY()) / (grid
-						.getScaleY() * grid.getTileHeight()));
+				int col = (int) ((e.getX()-getWidth()/2)/grid.getScaleX()) / grid.getTileWidth();
+				int row = (int) ((e.getY()-getHeight()/2)/grid.getScaleY()) / grid.getTileHeight();
 				if (!grid.contains(col, row)) {
 					grid.add(col, row);
 				} else {
@@ -75,8 +71,7 @@ public class Life extends JPanel {
 		});
 
 		addKeyListener(new KeyAdapter() {
-			
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_UP) {
